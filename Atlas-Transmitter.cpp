@@ -22,15 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #include "Atlas-Transmitter.h"
+
+#define one_byte_read 0x01  //used in a function to read data from the device
+#define two_byte_read 0x02  //used in a function to read data from the device
+#define four_byte_read 0x04 //used in a function to read data from the device
+
+// 0 .. success
+// 1 .. length to long for buffer
+// 2 .. address send, NACK received
+// 3 .. data send, NACK received
+// 4 .. other twi error (lost bus arbitration, bus error, ..)
+// 5 .. timeout
+static byte i2cError = 0;
+byte CheckI2C()
+{
+    return i2cError;
+}
+
+union sensor_mem_handler //declare the use of a union data type
+{
+    byte i2c_data[4]; //define a 4 byte array in the union
+    long answ;        //define an long in the union
+};
+static union sensor_mem_handler move_data; //declare that we will refer to the union as move_data
 
 //*************************************************************************************************************************
 //*************************************************************************************************************************
 
 //used to read 1,2,and 4 bytes: i2c_read(starting register,number of bytes to read)
 void i2c_read(uint_fast8_t reg, uint_fast8_t number_of_bytes_to_read, uint_fast8_t bus_address)
-{ 
+{
 
     uint_fast8_t i; //counter
 
@@ -61,10 +83,10 @@ void i2c_write_byte(uint_fast8_t reg, uint_fast8_t data, uint_fast8_t bus_addres
 //*************************************************************************************************************************
 
 //used to write a 4 bytes to a register: i2c_write_long(register to start at, long data )
-void i2c_write_long(uint_fast8_t reg, int_fast32_t data, uint_fast8_t bus_address)
-{ 
+void i2c_write_long(uint_fast8_t reg, unsigned long data, uint_fast8_t bus_address)
+{
 
-    uint_fast8_t i; //counter
+    int_fast8_t i; //counter
     move_data.answ = data;
 
     Wire.beginTransmission(bus_address); //call the device by its ID number
@@ -80,14 +102,14 @@ void i2c_write_long(uint_fast8_t reg, int_fast32_t data, uint_fast8_t bus_addres
 //*************************************************************************************************************************
 
 //calibration multiplyied by 1,000 , type: 1 = temperature, 2 = low , 3 = mid, 4 = high
-bool calibration(uint_fast32_t calibration, uint_fast8_t type)
-{ 
+bool calibration(unsigned long calibration, byte type)
+{
 
     const uint_fast8_t calibration_value_register = 0x08;        //register to read / write
     const uint_fast8_t calibration_request_register = 0x0C;      //register to read / write
     const uint_fast8_t calibration_confirmation_register = 0x0D; //register to read
     const uint_fast8_t cal_clear = 0x01;                         //clear calibration
-    const uint_fast8_t calibrate = 0x02;                         //calibrate to value
+    const uint_fast8_t temperaturecalibrate = 0x02;                         //calibrate to value
 
     // const byte cal_low = 0x02;											//calibrate to a low-point pH value (pH 4)
     // const byte cal_mid = 0x03;											//calibrate to a mid-point pH value (pH 7)
@@ -96,9 +118,21 @@ bool calibration(uint_fast32_t calibration, uint_fast8_t type)
     if (type == 0x01)
     {                                                                            //if calibration type is temperature else pH
         i2c_write_long(calibration_value_register, calibration, i2c_id_temp);    //write the 4 bytes of the long to the calibration register
-        i2c_write_byte(calibration_request_register, calibrate, i2c_id_temp);    //write the calibration command to the calibration control register
+        i2c_write_byte(calibration_request_register, temperaturecalibrate, i2c_id_temp);    //write the calibration command to the calibration control register
         delay(10);                                                               //wait for the calibration event to finish
         i2c_read(calibration_confirmation_register, one_byte_read, i2c_id_temp); //read from the calibration control register to confirm it is set correctly
+    }
+    else if (type == 5)
+    {
+        i2c_write_byte(calibration_request_register, cal_clear, i2c_id_ph); //write the calibration clear command to the calibration control register
+        delay(10);                                               //wait for the calibration event to finish
+        i2c_read(calibration_confirmation_register, one_byte_read, i2c_id_ph);
+    }
+    else if (type == 6)
+    {
+        i2c_write_byte(calibration_request_register, cal_clear, i2c_id_temp); //write the calibration clear command to the calibration control register
+        delay(10);                                               //wait for the calibration event to finish
+        i2c_read(calibration_confirmation_register, one_byte_read, i2c_id_temp);
     }
     else
     {
@@ -108,7 +142,7 @@ bool calibration(uint_fast32_t calibration, uint_fast8_t type)
         i2c_read(calibration_confirmation_register, one_byte_read, i2c_id_ph); //read from the calibration control register to confirm it is set correctly
     }
 
-    return move_data.i2c_data[0];
+    return true; // move_data.i2c_data[0];
 }
 
 void temp_comp(uint_fast32_t compensation)
@@ -141,26 +175,26 @@ bool efficientConfig(uint_fast8_t bus_address)
 // RTD /= 1000;
 long Temp_reading()
 {
-  const uint_fast8_t RTD_register = 0x0E; //register to read
-  // float RTD = 0;													//used to hold the new RTD value
+    const uint_fast8_t RTD_register = 0x0E; //register to read
+    // float RTD = 0;													//used to hold the new RTD value
 
-  i2c_read(RTD_register, four_byte_read, i2c_id_temp); //I2C_read(OEM register, number of bytes to read)
-  long temp = move_data.answ;
-  return temp; //move_data.answ;                               //move the 4 bytes read into a float
-               // RTD /= 1000;														//divide by 1000 to get the decimal point
-               // Serial.print("RTD= ");
-               // Serial.println(RTD, 3);	                                        //print info from register block
+    i2c_read(RTD_register, four_byte_read, i2c_id_temp); //I2C_read(OEM register, number of bytes to read)
+    long temp = move_data.answ;
+    return temp; //move_data.answ;                               //move the 4 bytes read into a float
+                 // RTD /= 1000;														//divide by 1000 to get the decimal point
+                 // Serial.print("RTD= ");
+                 // Serial.println(RTD, 3);	                                        //print info from register block
 }
 
 //  pH /= 1000;
 long pH_reading()
 {
-  const uint_fast8_t pH_register = 0x16; //register to read
-  // float pH = 0;													//used to hold the new pH value
+    const uint_fast8_t pH_register = 0x16; //register to read
+    // float pH = 0;													//used to hold the new pH value
 
-  i2c_read(pH_register, four_byte_read, i2c_id_ph); //I2C_read(OEM register, number of bytes to read)
-  return move_data.answ;                            //move the 4 bytes read into a float
-                                                    // pH /= 1000;														//divide by 1000 to get the decimal point
-                                                    // Serial.print("pH= ");
-                                                    // Serial.println(pH);	                                        //print info from register block
+    i2c_read(pH_register, four_byte_read, i2c_id_ph); //I2C_read(OEM register, number of bytes to read)
+    return move_data.answ;                            //move the 4 bytes read into a float
+                                                      // pH /= 1000;														//divide by 1000 to get the decimal point
+                                                      // Serial.print("pH= ");
+                                                      // Serial.println(pH);	                                        //print info from register block
 }
