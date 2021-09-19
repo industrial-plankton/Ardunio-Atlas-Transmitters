@@ -1,3 +1,5 @@
+#ifndef ATLAS_TRANSMITTERS_H
+#define ATLAS_TRANSMITTERS_H
 /*
 MIT License
 
@@ -47,3 +49,5 @@ long pH_reading();
 // 4 .. other twi error (lost bus arbitration, bus error, ..)
 // 5 .. timeout
 byte CheckI2C();
+
+#endif
