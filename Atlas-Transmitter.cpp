@@ -51,10 +51,10 @@ static union sensor_mem_handler move_data; //declare that we will refer to the u
 //*************************************************************************************************************************
 
 //used to read 1,2,and 4 bytes: i2c_read(starting register,number of bytes to read)
-void i2c_read(uint_fast8_t reg, uint_fast8_t number_of_bytes_to_read, uint_fast8_t bus_address)
+void i2c_read(unsigned char reg, unsigned char number_of_bytes_to_read, unsigned char bus_address)
 {
 
-    uint_fast8_t i; //counter
+    unsigned char i; //counter
 
     Wire.beginTransmission(bus_address); //call the device by its ID number
     Wire.write(reg);                     //transmit the register that we will start from
@@ -71,7 +71,7 @@ void i2c_read(uint_fast8_t reg, uint_fast8_t number_of_bytes_to_read, uint_fast8
 //*************************************************************************************************************************
 //*************************************************************************************************************************
 
-void i2c_write_byte(uint_fast8_t reg, uint_fast8_t data, uint_fast8_t bus_address)
+void i2c_write_byte(unsigned char reg, unsigned char data, unsigned char bus_address)
 {                                        //used to write a single byte to a register: i2c_write_byte(register to write to, byte data)
     Wire.beginTransmission(bus_address); //call the device by its ID number
     Wire.write(reg);                     //transmit the register that we will start from
@@ -83,7 +83,7 @@ void i2c_write_byte(uint_fast8_t reg, uint_fast8_t data, uint_fast8_t bus_addres
 //*************************************************************************************************************************
 
 //used to write a 4 bytes to a register: i2c_write_long(register to start at, long data )
-void i2c_write_long(uint_fast8_t reg, unsigned long data, uint_fast8_t bus_address)
+void i2c_write_long(unsigned char reg, unsigned long data, unsigned char bus_address)
 {
 
     int_fast8_t i; //counter
@@ -102,14 +102,14 @@ void i2c_write_long(uint_fast8_t reg, unsigned long data, uint_fast8_t bus_addre
 //*************************************************************************************************************************
 
 //calibration multiplyied by 1,000 , type: 1 = temperature, 2 = low , 3 = mid, 4 = high
-bool calibration(unsigned long calibration, byte type)
+bool calibration(unsigned long calibration, unsigned char type)
 {
 
-    const uint_fast8_t calibration_value_register = 0x08;        //register to read / write
-    const uint_fast8_t calibration_request_register = 0x0C;      //register to read / write
-    const uint_fast8_t calibration_confirmation_register = 0x0D; //register to read
-    const uint_fast8_t cal_clear = 0x01;                         //clear calibration
-    const uint_fast8_t temperaturecalibrate = 0x02;                         //calibrate to value
+    const unsigned char calibration_value_register = 0x08;        //register to read / write
+    const unsigned char calibration_request_register = 0x0C;      //register to read / write
+    const unsigned char calibration_confirmation_register = 0x0D; //register to read
+    const unsigned char cal_clear = 0x01;                         //clear calibration
+    const unsigned char temperaturecalibrate = 0x02;                         //calibrate to value
 
     // const byte cal_low = 0x02;											//calibrate to a low-point pH value (pH 4)
     // const byte cal_mid = 0x03;											//calibrate to a mid-point pH value (pH 7)
@@ -145,9 +145,9 @@ bool calibration(unsigned long calibration, byte type)
     return true; // move_data.i2c_data[0];
 }
 
-void temp_comp(uint_fast32_t compensation)
+void temp_comp(unsigned char compensation)
 {                                                                //compensation = temp* 100
-    const uint_fast8_t temperature_compensation_register = 0x0E; //register to write
+    const unsigned char temperature_compensation_register = 0x0E; //register to write
 
     i2c_write_long(temperature_compensation_register, compensation, i2c_id_ph); //write the 4 bytes of the long to the compensation register
 }
@@ -155,7 +155,7 @@ void temp_comp(uint_fast32_t compensation)
 //*************************************************************************************************************************
 //*************************************************************************************************************************
 
-bool efficientConfig(uint_fast8_t bus_address)
+bool efficientConfig(unsigned char bus_address)
 {
     Wire.beginTransmission(bus_address); //call the device by its ID number
     Wire.write(0x04);                    //transmit the register that we will start from
@@ -175,7 +175,7 @@ bool efficientConfig(uint_fast8_t bus_address)
 // RTD /= 1000;
 long Temp_reading()
 {
-    const uint_fast8_t RTD_register = 0x0E; //register to read
+    const unsigned char RTD_register = 0x0E; //register to read
     // float RTD = 0;													//used to hold the new RTD value
 
     i2c_read(RTD_register, four_byte_read, i2c_id_temp); //I2C_read(OEM register, number of bytes to read)
@@ -189,7 +189,7 @@ long Temp_reading()
 //  pH /= 1000;
 long pH_reading()
 {
-    const uint_fast8_t pH_register = 0x16; //register to read
+    const unsigned char pH_register = 0x16; //register to read
     // float pH = 0;													//used to hold the new pH value
 
     i2c_read(pH_register, four_byte_read, i2c_id_ph); //I2C_read(OEM register, number of bytes to read)
