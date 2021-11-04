@@ -47,6 +47,34 @@ long pH_reading();
 // 3 .. data send, NACK received
 // 4 .. other twi error (lost bus arbitration, bus error, ..)
 // 5 .. timeout
-byte CheckI2C();
+unsigned char CheckI2C();
+
+enum TransmitterType : unsigned char
+{
+    pH = 1,
+    temperature = 2
+};
+
+enum CalibrationType : unsigned char
+{
+    Clear = 1,
+    Temp_Cal = 2,
+    Low_Cal = 2,
+    Mid_Cal = 3,
+    High_Cal = 4
+};
+class Atlas
+{
+private:
+    /* data */
+    const TransmitterType TrType;
+    const unsigned char i2cAddress;
+
+public:
+    Atlas(const TransmitterType TrType, const unsigned char i2cAddress);
+    long Read();
+    void Calibrate(const unsigned long calibrationValue, const CalibrationType type);
+    void temp_compensate(const unsigned long compensation);
+};
 
 #endif
