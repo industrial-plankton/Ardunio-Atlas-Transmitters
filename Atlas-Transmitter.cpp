@@ -145,7 +145,7 @@ bool calibration(unsigned long calibration, unsigned char type)
     return true; // move_data.i2c_data[0];
 }
 
-void temp_comp(unsigned char compensation)
+void temp_comp(unsigned long compensation)
 {                                                                //compensation = temp* 100
     const unsigned char temperature_compensation_register = 0x0E; //register to write
 
