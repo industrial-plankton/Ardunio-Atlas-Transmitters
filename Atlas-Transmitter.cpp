@@ -84,14 +84,14 @@ void i2c_write_byte(const unsigned char reg, const unsigned char data, const uns
 //used to write a 4 bytes to a register: i2c_write_long(register to start at, long data )
 void i2c_write_long(const unsigned char reg, const unsigned long data, const unsigned char bus_address)
 {
-    char i; //counter
+    unsigned char i; //counter
     move_data.answ = data;
 
     Wire.beginTransmission(bus_address); //call the device by its ID number
     Wire.write(reg);                     //transmit the register that we will start from
-    for (i = 3; i >= 0; i--)
+    for (i = 4; i > 0; i--)
     { //with this code we write multiple bytes in reverse
-        Wire.write(move_data.i2c_data[i]);
+        Wire.write(move_data.i2c_data[i - 1]);
     }
     i2cError = Wire.endTransmission(); //end the I2C data transmission
 }
@@ -198,10 +198,14 @@ long pH_reading()
 
 Atlas::Atlas(const TransmitterType TrType, const unsigned char i2cAddress) : TrType{TrType}, i2cAddress{i2cAddress}
 {
+}
+
+void Atlas::Initialize() const
+{
     efficientConfig(i2cAddress);
 }
 
-long Atlas::Read()
+long Atlas::Read() const
 {
     unsigned char readReg; //register to read
 
@@ -222,7 +226,7 @@ long Atlas::Read()
     return move_data.answ;                         //move the 4 bytes read into a long
 }
 
-void Atlas::Calibrate(const unsigned long calibrationValue, const CalibrationType type)
+void Atlas::Calibrate(const unsigned long calibrationValue, const CalibrationType type) const
 {
     const unsigned char calibration_value_register = 0x08;        //register to read / write
     const unsigned char calibration_request_register = 0x0C;      //register to read / write
@@ -240,7 +244,7 @@ void Atlas::Calibrate(const unsigned long calibrationValue, const CalibrationTyp
     i2c_read(calibration_confirmation_register, one_byte_read, i2cAddress); //read from the calibration control register to confirm it is set correctly
 }
 
-void Atlas::temp_compensate(const unsigned long compensation) //compensation = temp* 100
+void Atlas::temp_compensate(const unsigned long compensation) const //compensation = temp* 100
 {
     if (TrType != TransmitterType::pH)
         return;

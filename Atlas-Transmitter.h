@@ -72,9 +72,10 @@ private:
 
 public:
     Atlas(const TransmitterType TrType, const unsigned char i2cAddress);
-    long Read();
-    void Calibrate(const unsigned long calibrationValue, const CalibrationType type);
-    void temp_compensate(const unsigned long compensation);
+    void Initialize() const;
+    long Read() const;
+    void Calibrate(const unsigned long calibrationValue, const CalibrationType type) const;
+    void temp_compensate(const unsigned long compensation) const;
 };
 
 #endif
