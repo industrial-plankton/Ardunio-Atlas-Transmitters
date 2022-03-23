@@ -25,10 +25,14 @@ SOFTWARE.
 */
 
 #include <Arduino.h>
-#include <Wire.h> //enable I2C.
+#if defined(ARDUINO_TEENSY35)
+#include <i2c_t3.h> //https://github.com/nox771/i2c_t3.git
+#else
+#include <Wire.h>
+#endif
 
-#define i2c_id_ph 0x65   //default I2C pH address
-#define i2c_id_temp 0x68 //default I2C temperature address
+#define i2c_id_ph 0x65   // default I2C pH address
+#define i2c_id_temp 0x68 // default I2C temperature address
 
 // bool active_con(uint_fast8_t bus_address)
 // void i2c_read(uint_fast8_t reg, uint_fast8_t number_of_bytes_to_read, uint_fast8_t bus_address);
@@ -71,7 +75,9 @@ private:
     const unsigned char i2cAddress;
 
 public:
-    Atlas(const TransmitterType TrType, const unsigned char i2cAddress);
+    Atlas(const TransmitterType TrType, const unsigned char i2cAddress) : TrType{TrType}, i2cAddress{i2cAddress}
+    {
+    }
     void Initialize() const;
     long Read() const;
     void Calibrate(const unsigned long calibrationValue, const CalibrationType type) const;
