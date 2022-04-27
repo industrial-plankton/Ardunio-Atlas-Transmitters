@@ -76,7 +76,7 @@ int i2c_read(const unsigned char reg, const unsigned char bus_address)
     Wire.write(reg);                     // transmit the register that we will start from
     i2cError = Wire.endTransmission();   // end the I2C data transmission
 
-    Wire.requestFrom(bus_address, 1); // call the device and request to read X bytes
+    Wire.requestFrom(bus_address, (uint8_t)1); // call the device and request to read X bytes
     const int value = Wire.read();
     // with this code we read multiple bytes in reverse
     Wire.endTransmission(); // end the I2C data transmission
