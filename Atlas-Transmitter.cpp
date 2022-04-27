@@ -217,6 +217,27 @@ long pH_reading()
     //  Serial.println(pH);	                                        //print info from register block
 }
 
+int GetType(const byte bus_address)
+{
+    const byte DeviceTypeRegister = 0x00;
+    return i2c_read(DeviceTypeRegister, bus_address);
+}
+
+int BroadCastChangeAddress(unsigned char newAddress)
+{
+    const byte BroadCastAddress = 0x00;
+    const byte unlock_register = 0x02;
+    const byte address_reg = 0x03;
+
+    // Unlock Address
+    i2c_write_byte(unlock_register, 0x55, BroadCastAddress);
+    i2c_write_byte(unlock_register, 0xAA, BroadCastAddress);
+    // Write new Address
+    i2c_write_byte(address_reg, newAddress, BroadCastAddress);
+
+    return GetType(newAddress);
+}
+
 void Atlas::Initialize() const
 {
     efficientConfig(i2cAddress);
