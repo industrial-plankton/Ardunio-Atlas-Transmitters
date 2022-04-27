@@ -224,6 +224,10 @@ void Atlas::Initialize() const
 
 long Atlas::Read() const
 {
+    if (i2cAddress == 0)
+    {
+        return 0;
+    }
     unsigned char readReg; // register to read
 
     switch (TrType)
@@ -245,6 +249,10 @@ long Atlas::Read() const
 
 void Atlas::Calibrate(const unsigned long calibrationValue, const CalibrationType type) const
 {
+    if (i2cAddress == 0)
+    {
+        return; // Dont allow broadcast
+    }
     const unsigned char calibration_value_register = 0x08;        // register to read / write
     const unsigned char calibration_request_register = 0x0C;      // register to read / write
     const unsigned char calibration_confirmation_register = 0x0D; // register to read
@@ -263,6 +271,10 @@ void Atlas::Calibrate(const unsigned long calibrationValue, const CalibrationTyp
 
 void Atlas::temp_compensate(const unsigned long compensation) const // compensation = temp* 100
 {
+    if (i2cAddress == 0)
+    {
+        return;
+    }
     if (TrType != TransmitterType::pH)
         return;
 
