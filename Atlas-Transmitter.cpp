@@ -249,6 +249,31 @@ int BroadCastChangeAddress(unsigned char newAddress)
     return GetType(newAddress);
 }
 
+int ChangeAddress(unsigned char oldAddress, unsigned char newAddress)
+{
+    const byte unlock_register = 0x02;
+    const byte address_reg = 0x03;
+
+    // Turn off all LEDs / disable Transmitters
+    Wire.beginTransmission(oldAddress); // call the device by its ID number
+    Wire.write(0x04);                   // transmit the register that we will start from
+    Wire.write(0x00);                   // Set INT Pin Mode (0 disable, 2 high on new, 4 low on new, 8 invert on new)
+    Wire.write(0x00);                   // Set LED Mode (1 blink, 0 off)
+    Wire.write(0x00);                   // Set Hib Mode (1 read, 0 sleep)
+    i2cError = Wire.endTransmission();  // end the I2C data transmission
+
+    // Unlock Address
+    i2c_write_byte(unlock_register, 0x55, oldAddress);
+    i2c_write_byte(unlock_register, 0xAA, oldAddress);
+    // Write new Address
+    i2c_write_byte(address_reg, newAddress, oldAddress);
+
+    // Turn on LED at new address to confirm it worked/comms are good
+    i2c_write_byte(0x05, 0x01, newAddress);
+
+    return GetType(newAddress);
+}
+
 void Atlas::Initialize() const
 {
     efficientConfig(i2cAddress);

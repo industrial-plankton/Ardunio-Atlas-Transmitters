@@ -44,7 +44,8 @@ void temp_comp(unsigned long compensation);
 bool efficientConfig(unsigned char bus_address);
 long Temp_reading();
 long pH_reading();
-int BroadCastChangeAddress(unsigned char newAddress);
+int BroadCastChangeAddress(const unsigned char newAddress);
+int ChangeAddress(const unsigned char oldAddress, const unsigned char newAddress);
 
 // 0 .. success
 // 1 .. length to long for buffer
