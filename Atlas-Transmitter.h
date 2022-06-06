@@ -47,13 +47,16 @@ long pH_reading();
 int BroadCastChangeAddress(const unsigned char newAddress);
 int ChangeAddress(const unsigned char oldAddress, const unsigned char newAddress);
 
-// 0 .. success
-// 1 .. length to long for buffer
-// 2 .. address send, NACK received
-// 3 .. data send, NACK received
-// 4 .. other twi error (lost bus arbitration, bus error, ..)
-// 5 .. timeout
-unsigned char CheckI2C();
+enum i2cStatus
+{
+    success,
+    BufferOverflow, // 1 .. length to long for buffer
+    addressNACK,    // 2 .. address send, NACK received
+    dataNACK,       // 3 .. data send, NACK received
+    other,          // 4 .. other twi error (lost bus arbitration, bus error, ..)
+    timeout,
+};
+i2cStatus CheckI2C();
 
 enum TransmitterType : unsigned char
 {

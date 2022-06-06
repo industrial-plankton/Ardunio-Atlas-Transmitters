@@ -28,16 +28,10 @@ SOFTWARE.
 #define two_byte_read 0x02  // used in a function to read data from the device
 #define four_byte_read 0x04 // used in a function to read data from the device
 
-// 0 .. success
-// 1 .. length to long for buffer
-// 2 .. address send, NACK received
-// 3 .. data send, NACK received
-// 4 .. other twi error (lost bus arbitration, bus error, ..)
-// 5 .. timeout
 static unsigned char i2cError = 0;
-unsigned char CheckI2C()
+i2cStatus CheckI2C()
 {
-    return i2cError;
+    return (i2cStatus)i2cError;
 }
 
 union sensor_mem_handler // declare the use of a union data type
