@@ -78,11 +78,15 @@ private:
     /* data */
     const TransmitterType TrType;
     const unsigned char i2cAddress;
+    // TwoWire Bus;
 
 public:
-    Atlas(const TransmitterType TrType, const unsigned char i2cAddress) : TrType{TrType}, i2cAddress{i2cAddress}
+    Atlas(const TransmitterType TrType, const unsigned char i2cAddress) : TrType{TrType}, i2cAddress{i2cAddress} //, Bus{Wire}
     {
     }
+    // Atlas(const TransmitterType TrType, const unsigned char i2cAddress, TwoWire Bus) : TrType{TrType}, i2cAddress{i2cAddress}, Bus{Bus}
+    // {
+    // }
     void Initialize() const;
     long Read() const;
     void Calibrate(const unsigned long calibrationValue, const CalibrationType type) const;
