@@ -31,6 +31,8 @@ SOFTWARE.
 #include <Wire.h>
 #endif
 
+#include <i2c_Helper.h> // https://github.com/industrial-plankton/i2c_Helper.git
+
 #define i2c_id_ph 0x65   // default I2C pH address
 #define i2c_id_temp 0x68 // default I2C temperature address
 
@@ -46,17 +48,6 @@ long Temp_reading();
 long pH_reading();
 int BroadCastChangeAddress(const unsigned char newAddress);
 int ChangeAddress(const unsigned char oldAddress, const unsigned char newAddress);
-
-enum i2cStatus
-{
-    success,
-    BufferOverflow, // 1 .. length to long for buffer
-    addressNACK,    // 2 .. address send, NACK received
-    dataNACK,       // 3 .. data send, NACK received
-    other,          // 4 .. other twi error (lost bus arbitration, bus error, ..)
-    timeout,
-};
-i2cStatus CheckI2C();
 
 enum TransmitterType : unsigned char
 {
