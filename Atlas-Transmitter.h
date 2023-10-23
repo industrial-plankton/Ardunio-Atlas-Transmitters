@@ -25,11 +25,7 @@ SOFTWARE.
 */
 
 #include <Arduino.h>
-#if defined(ARDUINO_TEENSY35)
-#include <i2c_t3.h> //https://github.com/nox771/i2c_t3.git
-#else
 #include <Wire.h>
-#endif
 
 #include <i2c_Helper.h> // https://github.com/industrial-plankton/i2c_Helper.git
 
