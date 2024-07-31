@@ -70,6 +70,7 @@ private:
 public:
     Atlas(const TransmitterType TrType, const unsigned char i2cAddress) : TrType{TrType}, i2cAddress{i2cAddress} //, Bus{Wire}
     {
+        Initialize();
     }
     // Atlas(const TransmitterType TrType, const unsigned char i2cAddress, TwoWire Bus) : TrType{TrType}, i2cAddress{i2cAddress}, Bus{Bus}
     // {
