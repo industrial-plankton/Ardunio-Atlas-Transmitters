@@ -195,6 +195,7 @@ int ChangeAddress(unsigned char oldAddress, unsigned char newAddress)
 void Atlas::Initialize() const
 {
     efficientConfig(i2cAddress);
+    Wire.setTimeout(50);
 }
 
 long Atlas::Read() const
